@@ -67,7 +67,7 @@ def garch_autotune(train_returns, ar_lag, progress_fn=None):
     aic_table = []
     total = len(combos)
     for i, (p, q, mean, dist) in enumerate(combos):
-        if progress_fn:
+        if progress_fn is not None:
             progress_fn(i / total, desc=f"GARCH auto-tune: combo {i + 1}/{total} "
                                         f"(p={p}, q={q}, mean={mean}, dist={dist})")
         try:
@@ -79,7 +79,7 @@ def garch_autotune(train_returns, ar_lag, progress_fn=None):
                 best_aic, best_cfg, best_fit = fit.aic, (p, q, mean, dist), fit
         except Exception:
             aic_table.append(dict(p=p, q=q, mean=mean, dist=dist, aic=None, ok=False))
-    if progress_fn:
+    if progress_fn is not None:
         progress_fn(1.0, desc=f"GARCH auto-tune: {total}/{total} combos complete")
     return best_cfg, best_fit, aic_table
 
@@ -285,7 +285,7 @@ def grid_search_lstm(param_grid, train_loader, Xv, yv, scaler, tune_epochs=50, p
     total = len(combos)
     start_t = time.time()
     for i, (h, l, lr, d) in enumerate(combos):
-        if progress_fn:
+        if progress_fn is not None:
             elapsed = time.time() - start_t
             avg = elapsed / i if i > 0 else 0.0
             eta = avg * (total - i)
@@ -305,7 +305,7 @@ def grid_search_lstm(param_grid, train_loader, Xv, yv, scaler, tune_epochs=50, p
                 opt.step()
         _, _, rv, _, _ = evaluate_variance(m, Xv, yv, scaler)
         results.append(dict(hidden=int(h), layers=int(l), lr=float(lr), dropout=float(d), rmse=rv))
-    if progress_fn:
+    if progress_fn is not None:
         progress_fn(1.0, desc=f"Grid search: {total}/{total} combos complete "
                               f"in {format_time(time.time() - start_t)}")
     return sorted(results, key=lambda x: x["rmse"])[0], results
@@ -350,10 +350,10 @@ def bayes_search_lstm(train_loader, Xv, yv, scaler, hidden_range, layers_range, 
         return rv
 
     if not specs:
-        if progress_fn:
+        if progress_fn is not None:
             progress_fn(0.0, desc="Evaluating fixed hyperparameters...")
         rv = _train_and_eval(fixed["hidden"], fixed["layers"], fixed["lr"], fixed["dropout"])
-        if progress_fn:
+        if progress_fn is not None:
             progress_fn(1.0, desc="Done")
         best = dict(hidden=int(fixed["hidden"]), layers=int(fixed["layers"]),
                     lr=float(fixed["lr"]), dropout=float(fixed["dropout"]), rmse=rv)
@@ -372,7 +372,7 @@ def bayes_search_lstm(train_loader, Xv, yv, scaler, hidden_range, layers_range, 
     bstart = time.time()
 
     def _cb(res):
-        if progress_fn:
+        if progress_fn is not None:
             done = len(res.x_iters)
             elapsed = time.time() - bstart
             avg = elapsed / done if done > 0 else 0.0
@@ -384,7 +384,7 @@ def bayes_search_lstm(train_loader, Xv, yv, scaler, hidden_range, layers_range, 
 
     result = gp_minimize(objective, dimensions, n_calls=n_calls, n_initial_points=n_initial,
                           random_state=random_state, verbose=False,
-                          callback=_cb if progress_fn else None)
+                          callback=_cb if progress_fn is not None else None)
 
     def _to_hp(x_vals, rmse):
         params = {name: v for (name, *_), v in zip(specs, x_vals)}

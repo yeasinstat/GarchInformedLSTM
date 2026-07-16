@@ -1090,4 +1090,10 @@ with gr.Blocks(title="GARCH-Guided LSTM (GGLSTM)", theme=CUSTOM_THEME, css=CUSTO
     )
 
 if __name__ == "__main__":
-    demo.queue().launch()
+    import os
+    demo.queue().launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860)),
+        share=True,
+        show_api=False
+    )
