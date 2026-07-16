@@ -1064,16 +1064,7 @@ with gr.Blocks(title="GARCH-Guided LSTM (GGLSTM)", theme=CUSTOM_THEME, css=CUSTO
                   </div>
                 </div>
 
-                <div class="instr-section">
-                  <h3>Pipeline</h3>
-                  <div class="formula-list">
-                    <div class="formula-line"><span class="f-num">1</span> Compute returns: <code>y_t → r_t = (y_t − y_{t−1}) / y_{t−1}</code></div>
-                    <div class="formula-line"><span class="f-num">2</span> AR(p) → mean forecast μ̂_t &nbsp;·&nbsp; GARCH(p,q) → variance forecast σ²̂_GARCH</div>
-                    <div class="formula-line"><span class="f-num">3</span> Ground truth variance: <code>σ²_t = (r_t − μ̂_t)²</code></div>
-                    <div class="formula-line"><span class="f-num">4</span> LSTM learns to predict σ²_t from past σ²_t sequences</div>
-                    <div class="formula-line"><span class="f-num">5</span> Loss = (1−λ)·MSE(σ²_t, σ²̂_LSTM) + λ·MSE(σ²̂_GARCH, σ²̂_LSTM)</div>
-                  </div>
-                </div>
+                
                 """
             )
         with gr.Tab("Developers"):
